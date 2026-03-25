@@ -17,7 +17,7 @@
 #pragma once
 
 // user macros
-#define BOOT_DELAY 250
+#define BOOT_DELAY 500
 
 
 // QMK macros
