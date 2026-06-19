@@ -14,18 +14,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/* ========================================================================== */
+/*                                   KEYMAP                                   */
+/* ========================================================================== */
+
 #include QMK_KEYBOARD_H
+#include "debug_keymap.h"
 
 enum alt_keycodes {
-    DBG_TOG = SAFE_RANGE,    // toggle DEBUG
-    MD_BOOT,                 // restart into bootloader
+    MD_BOOT = SAFE_RANGE,    // restart into bootloader
     DBG_TST,                 // DEBUG test key
     CYC_MD,                  // cycle keyboard mode
     CYC_LT,                  // cycle keyboard layout
     CYC_LC,                  // cycle layer color mode
     DM_SPAM,                 // spam macro
-    MS_CLK,                  // mouse keys momentary layer
-    PLY_SNK                  // snake game
+    MS_CLK                   // mouse keys momentary layer
 };
 
 enum layer_names {
@@ -38,6 +41,11 @@ enum layer_names {
     _RGB,     // RGB
     _GMS      // games
 };
+
+
+/* ========================================================================== */
+/*                                   LAYERS                                   */
+/* ========================================================================== */
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_MAIN] = LAYOUT_65_ansi_blocker(
@@ -64,19 +72,29 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_FN] = LAYOUT_65_ansi_blocker(
         KC_GRV,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  _______, KC_INS,
         _______, TG(_FNP),_______, _______, _______, _______, _______, _______, _______, _______, TG(_GMS),KC_PAUS, KC_SCRL, KC_PSCR, KC_END,
-        _______, LC_CYC,  DM_SPAM, DB_TOGG, DM_REC1, DM_REC2, DM_PLY1, DM_PLY2, KO_TOGG, CYC_LT,  KC_BRID, KC_BRIU,          _______, CYC_MD,
+        _______, CYC_LC,  DM_SPAM, DB_TOGG, DM_REC1, DM_REC2, DM_PLY1, DM_PLY2, KO_TOGG, CYC_LT,  KC_BRID, KC_BRIU,          _______, CYC_MD,
         _______, EE_CLR,  _______, _______, _______, MD_BOOT, NK_TOGG, TG(_MS), KC_MUTE, KC_VOLD, KC_VOLU, _______,          TT(_RGB),MS_CLK,
         _______, _______, _______,                            DBG_TST,                            _______, _______, KC_MPRV, KC_MPLY, KC_MNXT
     ),
 };
 
+layer_state_t layer_state_set_user(layer_state_t state) {
+    dprintf("highest layer: %u\n", get_highest_layer(state));
+    return state;
+}
+
+
+/* ========================================================================== */
+/*                            MAIN PROCESSING LOOP                            */
+/* ========================================================================== */
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     static uint32_t key_timer;
 
     switch (keycode) {
-        case DBG_TOG:
+        case DB_TOGG:
             if (record->event.pressed) {
-                TOGGLE_FLAG_AND_PRINT(debug_enable, "Debug mode");
+                dprint("DEBUG MODE ENABLED");
             }
             return false;
         case MD_BOOT:
